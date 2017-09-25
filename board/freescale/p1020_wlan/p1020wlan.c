@@ -44,7 +44,7 @@ typedef struct cpld_data_cont{
 	u8 bps_led;
 	u8 status_led; 			/* offset: 0x8 */
 	u8 rev3;
-	u8 vcore_voltage_mgn; 	/* offset: 0xa */
+	u8 vcore_voltage_mgn; 		/* offset: 0xa */
 	u8 rev4[2];
 	u8 system_rst;			/* offset: 0xd */
 	u8 bps_out;
@@ -67,16 +67,9 @@ typedef struct cpld_data_cont{
 void board_cpld_init(void)
 {
 	volatile cpld_data_t *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
-puts("\nBOARD: CPLD init\n");
-#ifdef _SETTINGS_TESTED_
-	out_8(&cpld_data->wd_cfg, CPLD_WD_CFG);
-	out_8(&cpld_data->rst_bps_sw, CPLD_RST_BSW);
-	out_8(&cpld_data->rst_bps_wd, CPLD_RST_BWD);
-	out_8(&cpld_data->bypass_enable, CPLD_BYPASS_EN);
-	out_8(&cpld_data->status_led, CPLD_STATUS_LED);
-	out_8(&cpld_data->vcore_voltage_mgn, CPLD_VCORE_VOLT);
-	out_8(&cpld_data->system_rst, CPLD_SYS_RST);
-#else
+
+	puts("\nBOARD: CPLD init\n");
+
 	cpld_data->wd_cfg  			= CPLD_WD_CFG;
 	cpld_data->rst_bps_sw 			= CPLD_RST_BSW;
 	cpld_data->rst_bps_wd 			= CPLD_RST_BWD;
@@ -84,29 +77,18 @@ puts("\nBOARD: CPLD init\n");
 	cpld_data->status_led  			= CPLD_STATUS_LED;
 	cpld_data->vcore_voltage_mgn 		= CPLD_VCORE_VOLT;
 	cpld_data->system_rst 			= CPLD_SYS_RST;
-#endif
+
+
+	/* Note: it is recommended to use out_8() function rather than directly playing with memory mapped CPLD locations. 
+	   eg. last line can be replaced by   out_8(&cpld_data->system_rst, CPLD_SYS_RST); */
 
 }
 #endif
 
 
 
-void delay_B(unsigned long us)
-{
-/*
-unsigned long j;
-j= 10000 * n;
+/////////////////////
 
-while(j--);
-*/
-
-while(us--)
-{
-udelay(40);
-udelay(40);
-}
-
-}
 
 ////////////////////////////////////  board_gpio_init() ///////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
@@ -114,25 +96,6 @@ void board_gpio_init(void)
 {
 
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-
-
-	/*clrbits_be32(&pgpio->gpodr, 0x04000000);*/
-	setbits_be32(&pgpio->gpdir, 0x04100000);
-
-
-	setbits_be32(&pgpio->gpdat, 0x04100000);
-
-	/*setbits_be32(&pgpio->gpdat, 0x04100000);
-	udelay(1000000);*/
-
-while(1){
-	clrbits_be32(&pgpio->gpdat, 0x04100000);
-	
-	delay_B(1);
-	setbits_be32(&pgpio->gpdat, 0x04100000);
-	delay_B(20);
-}
-
 
 	/*
 	  * GPIO06 RGMII PHY Reset
@@ -213,7 +176,7 @@ int checkboard (void)
 
 	puts("\nBoard P1020wlan:checkboard rev.00abcd\n");	
 
-#ifdef PORTED_P1020WLAN
+	#ifdef PORTED_P1020WLAN
 	struct cpu_type *cpu = gd->cpu;;
 
 	printf("Board: %sP1020WLAN, fw rev:SKU01 ", cpu->name);
@@ -228,17 +191,15 @@ int checkboard (void)
 
 	udelay(10 * 1000);
 
-
 	/* reset DDR3 */
 	setbits_be32(&pgpio->gpdat, 0x20000000);
 	udelay(10 * 1000);
 	
 	/* refuse any ops to ddr enable signal */
 	clrbits_be32(&pgpio->gpdir, 0x20000000);
+	#endif
 
-//	creat_squa_wave();
-	
-#endif
+
 	return 0;
 }
 
