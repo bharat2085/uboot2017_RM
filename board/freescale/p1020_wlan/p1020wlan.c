@@ -92,6 +92,11 @@ void board_cpld_init(void)
 
 ////////////////////////////////////  board_gpio_init() ///////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
+/* 
+
+	Note: iN EARLY_INIT_F console,  print will not work here.
+
+*/
 void board_gpio_init(void)
 {
 
@@ -100,14 +105,17 @@ void board_gpio_init(void)
 	/*
 	  * GPIO06 RGMII PHY Reset
 	  * GPIO10 DDR Reset, open drain
-	  * GPIO14 SGMII PHY Reset
-
-	 may do 
+	  * GPIO14 SGMII PHY Reset   XXXXX TO Check?
 	 * GPIO15 PCIE Reset 
+	may do 
 	  * GPIO7  LOAD_DEFAULT_N          Input
 	  * GPIO11  WDI (watchdog input)   
 	  * GPIO12  Ethernet Switch Reset   
 	  */
+
+	#if(!defined(CONFIG_SPL))
+	setbits_be32(&pgpio->gpdir, 0x02310000);	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
+	
 
 	#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
 	/* init DDR3 reset signal */
@@ -120,14 +128,15 @@ void board_gpio_init(void)
 	clrbits_be32(&pgpio->gpdir, 0x00200000);
 	#endif
 
-       /* puts("\niN EARLY_INIT_F console print will not work\n"); */
-
+       
 	/* reset sgmii/rgmii phy & PCIe */
-	setbits_be32(&pgpio->gpdir, 0x02010000);
-	setbits_be32(&pgpio->gpdat, 0x021f0000);
+	
+	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII reset, WDI && PCI reset line */
 /*
 	udelay(1000);
 	clrbits_be32(&pgpio->gpdat, 0x02000000);	*/
+
+	#endif
 }
 
 
@@ -155,7 +164,6 @@ int board_early_init_f(void)
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_TDM_ENA);
 	#endif
 
-
 	board_gpio_init();
 
 	#ifdef CONFIG_SYS_CPLD_BASE
@@ -174,18 +182,21 @@ int checkboard (void)
 	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 	volatile cpld_data_t *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
-	puts("\nBoard P1020wlan:checkboard rev.00abcd\n");	
+	struct cpu_type * cpu;
+		
 
-	#ifdef PORTED_P1020WLAN
-	struct cpu_type *cpu = gd->cpu;;
+	/* cpu = gd->cpu; */
 
-	printf("Board: %sP1020WLAN, fw rev:SKU01 ", cpu->name);
 
+	printf("\nBoard: P1020WLAN, FW rev: 1.0a" );
+
+	
 	#ifdef CONFIG_PHYS_64BIT
 	printf ("(36-bit addrmap) ");
 	#endif
-	printf("\n");
 
+
+	printf("\n");
 	printf("CPLD:  V%d.0\n", cpld_data->cpld_rev & 0x0F);
 	printf("PCBA:  V%d.0\n", cpld_data->pcba_rev & 0x0F);
 
@@ -197,9 +208,8 @@ int checkboard (void)
 	
 	/* refuse any ops to ddr enable signal */
 	clrbits_be32(&pgpio->gpdir, 0x20000000);
-	#endif
-
-
+	
+	
 	return 0;
 }
 
@@ -218,13 +228,9 @@ void pci_init_board(void)
 
 int board_early_init_r(void)
 {
-	
-
-#ifdef TARGET_P1020RDB_PD
-
 
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
-	int flash_esel = find_tlb_idx((void *)flashbase, 1);    //should be =2
+	int flash_esel = find_tlb_idx((void *)flashbase, 1);    /*//should be =2*/
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -248,27 +254,6 @@ int board_early_init_r(void)
 		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,/* perms, wimge */
 		0, flash_esel, BOOKE_PAGESZ_64M, 1);/* ts, esel, tsize, iprot */
 
-	return 0;
-#endif
-
-	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
-	const u8 flash_esel = 2;
-
-	/*
-	 * Remap Boot flash region to caching-inhibited
-	 * so that flash can be erased properly.
-	 */
-
-	/* Flush d-cache and invalidate i-cache of any FLASH data */
-	flush_dcache();
-	invalidate_icache();
-
-	/* invalidate existing TLB entry for flash */
-	disable_tlb(flash_esel);
-
-	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,	/* tlb, epn, rpn */
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
-			0, flash_esel, BOOKE_PAGESZ_64M, 1);	/* ts, esel, tsize, iprot */
 	return 0;
 }
 
