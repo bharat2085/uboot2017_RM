@@ -44,8 +44,10 @@ dimm_params_t ddr_raw_timing = {
 	.trcd_ps = 13125,
 	.trrd_ps = 6000,
 	.trp_ps = 13125,
-	.tras_ps = 36000,
-	.trc_ps = 49125,
+
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+
 	.trfc_ps = 160000,
 	.twtr_ps = 7500,
 	.trtp_ps = 7500,
@@ -56,11 +58,44 @@ dimm_params_t ddr_raw_timing = {
 #elif	defined(CONFIG_TARGET_P1020WLAN) 
 /*
  * Samsung K4B2G0846C-HCH9
- * The following timing are for "downshift"
- * i.e. to use CL9 part as CL7
- * otherwise, tAA, tRCD, tRP will be 13500ps
+ * The following timing are H9 part in full speed CL9 (DDR3@667Mhz) 
+ *  tAA, tRCD, tRP will be 13500ps
  * and tRC will be 49500ps
  */
+#if defined(FULL_SPEED)
+dimm_params_t ddr_raw_timing = {
+	.n_ranks = 1,
+	.rank_density = 1073741824u,
+	.capacity = 1073741824u,
+	.primary_sdram_width = 32,
+	.ec_sdram_width = 0,
+	.registered_dimm = 0,
+	.mirrored_dimm = 0,
+	.n_row_addr = 15,
+	.n_col_addr = 10,
+	.n_banks_per_sdram_device = 8,
+	.edc_config = 0,
+	.burst_lengths_bitmask = 0x0c,
+
+	.tckmin_x_ps = 1500,   /* note that : value change for HCF8 part */
+	.caslat_x = 0x3e << 4,	/* 5,6,7,8,9 */
+	.taa_ps = 13500,	/* CHANGE:13125,*/
+	.twr_ps = 15000,
+	.trcd_ps = 13500,	/* CHANGE:13125,*/
+	.trrd_ps = 6000,
+	.trp_ps = 13500,	/* CHANGE:13125,*/
+
+	.tras_ps = 36000,	/* 36000*/   /* working-37500*/
+	.trc_ps = 49500,	/*49500,*/  /*working- 50625*/
+
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
+	.refresh_rate_ps = 7800000,
+	.tfaw_ps = 30000,
+};
+#else
+
 dimm_params_t ddr_raw_timing = {
 	.n_ranks = 1,
 	.rank_density = 1073741824u,
@@ -77,19 +112,22 @@ dimm_params_t ddr_raw_timing = {
 
 	.tckmin_x_ps = 1500,
 	.caslat_x = 0x3e << 4,	/* 5,6,7,8,9 */
-	.taa_ps = 13500,	/* CHANGE:13125,*/
+	.taa_ps = 13125,
 	.twr_ps = 15000,
-	.trcd_ps = 13500,	/* CHANGE:13125,*/
+	.trcd_ps = 13125,
 	.trrd_ps = 6000,
-	.trp_ps = 13500,	/* CHANGE:13125,*/
-	.tras_ps = 37500,	/* 36000*/
-	.trc_ps = 50625,	/*49125,*/
+	.trp_ps = 13125,
+
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+
 	.trfc_ps = 160000,
 	.twtr_ps = 7500,
 	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
 	.tfaw_ps = 30000,
 };
+#endif
 
 #elif defined(CONFIG_TARGET_P1020PC)
 
@@ -126,46 +164,7 @@ dimm_params_t ddr_raw_timing = {
 	.trfc_ps = 160000,
 	.twtr_ps = 7500,
 	.trtp_ps = 7500,
-	.refresh_rate_ps = 7800000,
-	.tfaw_ps = 37500,
-};
 
-
-#elif defined(CONFIG_TARGET_P1020RDB_PC_CHANG)
-
-/*
- * Samsung K4B2G0846C-HCF8
- * The following timing are for "downshift"
- * i.e. to use CL9 part as CL7
- * otherwise, tAA, tRCD, tRP will be 13500ps
- * and tRC will be 49500ps
- */
-dimm_params_t ddr_raw_timing = {
-	.n_ranks = 1,
-	.rank_density = 1073741824u,
-	.capacity = 1073741824u,
-	.primary_sdram_width = 32,
-	.ec_sdram_width = 0,
-	.registered_dimm = 0,
-	.mirrored_dimm = 0,
-	.n_row_addr = 15,
-	.n_col_addr = 10,
-	.n_banks_per_sdram_device = 8,
-	.edc_config = 0,
-	.burst_lengths_bitmask = 0x0c,
-
-	.tckmin_x_ps = 1875,
-	.caslat_x = 0x1e << 4,		/* 5,6,7,8 */
-	.taa_ps = 13500,			/* CHANGE: 13125 */ 
-	.twr_ps = 15000,
-	.trcd_ps = 13500,			/* CHANGE: 13125 */
-	.trrd_ps = 7500,
-	.trp_ps = 13500,			/* CHANGE: 13125*/
-	.tras_ps = 37500,
-	.trc_ps =  49500,				/* CHANGE: 50625*/
-	.trfc_ps = 160000,
-	.twtr_ps = 7500,
-	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
 	.tfaw_ps = 37500,
 };
@@ -178,7 +177,7 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 		unsigned int controller_number,
 		unsigned int dimm_number)
 {
-	const char dimm_model[] = "Fixed DDR on board";	puts("\n DDR: using new Timings...1024_HCH9-FULL01\n");
+	const char dimm_model[] = "Fixed DDR on board";	puts("\n DDR: using modified new Timings...1024_HCH9-FULL01\n");
 
 	if ((controller_number == 0) && (dimm_number == 0)) {
 		memcpy(pdimm, &ddr_raw_timing, sizeof(dimm_params_t));

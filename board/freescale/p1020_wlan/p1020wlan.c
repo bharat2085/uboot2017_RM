@@ -113,8 +113,8 @@ void board_gpio_init(void)
 	  * GPIO12  Ethernet Switch Reset   
 	  */
 
-	#if(!defined(CONFIG_SPL))
-	setbits_be32(&pgpio->gpdir, 0x02310000);	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
+	
+	setbits_be32(&pgpio->gpdir, 0x02010000);	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
 	
 
 	#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
@@ -136,7 +136,9 @@ void board_gpio_init(void)
 	udelay(1000);
 	clrbits_be32(&pgpio->gpdat, 0x02000000);	*/
 
-	#endif
+
+
+	
 }
 
 
@@ -188,7 +190,7 @@ int checkboard (void)
 	/* cpu = gd->cpu; */
 
 
-	printf("\nBoard: P1020WLAN, FW rev: 1.0a" );
+	printf("\nBoard: P1020WLAN, FW rev: 1.0b" );
 
 	
 	#ifdef CONFIG_PHYS_64BIT
