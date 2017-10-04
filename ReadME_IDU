@@ -1,0 +1,5 @@
+Readme:
+1. New branch created from P1020WLAN master branch commit4 "Samsung DDR timing corrected",  which also incorporates following changes in p1020wlan.c 
+-board_gpio_init().
+-cache code refined in commit3.
+

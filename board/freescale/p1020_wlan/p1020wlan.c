@@ -128,17 +128,16 @@ void board_gpio_init(void)
 	clrbits_be32(&pgpio->gpdir, 0x00200000);
 	#endif
 
-       
+
+        #if defined (CONFIG_TARGET_P1020WLAN)
 	/* reset sgmii/rgmii phy & PCIe */
-	
-	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII reset, WDI && PCI reset line */
-/*
+	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII PHy reset, WDI && PCI reset line */
+	#endif
+
+
+	/*
 	udelay(1000);
-	clrbits_be32(&pgpio->gpdat, 0x02000000);	*/
-
-
-
-	
+	clrbits_be32(&pgpio->gpdat, 0x02000000);*/	
 }
 
 
