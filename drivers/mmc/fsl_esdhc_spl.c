@@ -144,7 +144,6 @@ void __noreturn mmc_boot(void)
 	*/
 	flush_cache(CONFIG_SYS_MMC_U_BOOT_DST, CONFIG_SYS_MMC_U_BOOT_SIZE);
 
-puts("\n Jumping uboot\n");
 	/*
 	* Jump to U-Boot image
 	*/

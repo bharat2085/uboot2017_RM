@@ -70,13 +70,13 @@ void board_init_f(ulong bootflag)
 	puts("\nSPI Flash boot...\n");
 #endif
 
-	/* copy code to RAM and jump to it - this should not return */
+	/* copy code to SRAM and jump to it - this should not return */
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	 */
 	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);	
 
-	/* relocate spl code to f8f8_1000 from f8f8f_0000, new stack ptr and Global data ptr also declared, meaning this is making of CRT , implies further ahead fully function C code/function will run , till now it was running in assembly context.*/
+	/* relocate spl code to f8f8_1000 from f8f8f_0000, new stack ptr and Global data ptr also declared */
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
