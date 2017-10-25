@@ -54,7 +54,7 @@ typedef struct cpld_data_cont{
 #define CPLD_RST_BSW	(0x00)
 #define CPLD_RST_BWD	(0x00)
 #define CPLD_BYPASS_EN	(0x03)
-#define CPLD_STATUS_LED	(0x01)
+#define CPLD_STATUS_LED	(0x00)
 #define CPLD_VCORE_VOLT	(0x00)
 #define CPLD_SYS_RST	(0x00)
 
@@ -139,7 +139,9 @@ udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
 	/*clrbits_be32(&pgpio->gpdir, 0x00200000);*/
+
 #endif
+
 
 
 
@@ -175,11 +177,14 @@ int board_early_init_f(void)
 	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_TDM_ENA);
 	#endif
 
+	
 	board_gpio_init();
+	
 
 	#ifdef CONFIG_SYS_CPLD_BASE
 	board_cpld_init();
 	#endif
+	
 
 	return 0;
 }

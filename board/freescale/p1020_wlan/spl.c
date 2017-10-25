@@ -32,6 +32,15 @@ void board_init_f(ulong bootflag)
 	u32 plat_ratio, bus_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
+	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	setbits_be32(&pgpio->gpdir, 0x00200000);
+
+	setbits_be32(&pgpio->gpodr, 0x00200000);
+	clrbits_be32(&pgpio->gpdat, 0x00200000);
+	udelay(10*1000);
+	setbits_be32(&pgpio->gpdat, 0x00200000);
+
+
 	console_init_f();
 
 	/* Set pmuxcr to allow both i2c1 and i2c2 */				 /* Comment seems as legacy on, nothing done like that here*/
@@ -65,7 +74,7 @@ void board_init_f(ulong bootflag)
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	 */
-	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);	/* call to assembly function in start.S */
+	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);	
 
 	/* relocate spl code to f8f8_1000 from f8f8f_0000, new stack ptr and Global data ptr also declared, meaning this is making of CRT , implies further ahead fully function C code/function will run , till now it was running in assembly context.*/
 }
