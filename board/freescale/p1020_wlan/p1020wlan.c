@@ -68,7 +68,6 @@ void board_cpld_init(void)
 {
 	volatile cpld_data_t *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
-	puts("\nBOARD: CPLD init\n");
 
 	cpld_data->wd_cfg  			= CPLD_WD_CFG;
 	cpld_data->rst_bps_sw 			= CPLD_RST_BSW;
@@ -96,13 +95,9 @@ void board_cpld_init(void)
 
 	Note: iN EARLY_INIT_F console,  print will not work here.
 
-*/
-void board_gpio_init(void)
-{
 
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 
-	/*
+	p1020wlan reference.
 	  * GPIO06 RGMII PHY Reset
 	  * GPIO10 DDR Reset, open drain
 	  * GPIO14 SGMII PHY Reset   XXXXX TO Check?
@@ -111,34 +106,48 @@ void board_gpio_init(void)
 	  * GPIO7  LOAD_DEFAULT_N          Input
 	  * GPIO11  WDI (watchdog input)   
 	  * GPIO12  Ethernet Switch Reset   
-	  */
+	  
+
+
+*/
+void board_gpio_init(void)
+{
+
+	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 
 	
-	setbits_be32(&pgpio->gpdir, 0x02010000);	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
+	/*setbits_be32(&pgpio->gpdir, 0x02010000);*/	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
 	
 
 	#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
-	/* init DDR3 reset signal */
-	setbits_be32(&pgpio->gpdir, 0x023f0000);
+	setbits_be32(&pgpio->gpdir, 0x02310000);
+
 	setbits_be32(&pgpio->gpodr, 0x00200000);
 	clrbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
+	udelay(1000);
+	udelay(1000);
+udelay(1000);
+udelay(1000);
+udelay(1000);
+udelay(1000);
+udelay(1000);
+udelay(1000);
+udelay(1000);
+
+udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
-	clrbits_be32(&pgpio->gpdir, 0x00200000);
-	#endif
+	/*clrbits_be32(&pgpio->gpdir, 0x00200000);*/
+#endif
+
+
 
        
-	/* reset sgmii/rgmii phy & PCIe */
-	
-	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII reset, WDI && PCI reset line */
-/*
+	/*
+	setbits_be32(&pgpio->gpdat, 0x08320000);   
 	udelay(1000);
-	clrbits_be32(&pgpio->gpdat, 0x02000000);	*/
-
-
-
-	
+	clrbits_be32(&pgpio->gpdat, 0x00320000);	*/	
 }
 
 
@@ -190,7 +199,7 @@ int checkboard (void)
 	/* cpu = gd->cpu; */
 
 
-	printf("\nBoard: P1020WLAN, FW rev: 1.0b" );
+	printf("\nBoard: P1020WLAN, FW rev: 1.0ba" );
 
 	
 	#ifdef CONFIG_PHYS_64BIT
@@ -205,11 +214,11 @@ int checkboard (void)
 	udelay(10 * 1000);
 
 	/* reset DDR3 */
-	setbits_be32(&pgpio->gpdat, 0x20000000);
+	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(10 * 1000);
 	
 	/* refuse any ops to ddr enable signal */
-	clrbits_be32(&pgpio->gpdir, 0x20000000);
+	clrbits_be32(&pgpio->gpdir, 0x00200000);
 	
 	
 	return 0;
