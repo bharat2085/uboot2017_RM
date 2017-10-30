@@ -197,14 +197,20 @@ int checkboard (void)
 {
 	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 	volatile cpld_data_t *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
-
+ 				/*	= (void *) ( CONFIG_SYS_MPC85xx_ECM_ADDR);*/
+		volatile ccsr_local_ecm_t * ecm= (void*) (CONFIG_SYS_MPC85xx_ECM_ADDR) ;
+		
 	struct cpu_type * cpu;
 		
 
 	/* cpu = gd->cpu; */
-
-
-	printf("\nBoard: P1020WLAN, FW rev: 1.0ba" );
+/*(CONFIG_SYS_MPC85xx_ECM_ADDR +0x1000+0x10)*/
+/*
+       printf("gpdat=%04x\n",&pgpio->gpdat); 
+	printf("ecm=%04x\n", &ecm->eebpcr);
+	setbits_be32(&ecm->eebpcr, 0x02000000);
+	*/
+	printf("\nBoard: P1020WLAN, FW rev: 1.0bac" );
 
 	
 	#ifdef CONFIG_PHYS_64BIT

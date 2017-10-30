@@ -43,20 +43,28 @@ void board_init_f(ulong bootflag)
 
 	console_init_f();
 
-	/* Set pmuxcr to allow both i2c1 and i2c2 */				 /* Comment seems as legacy on, nothing done like that here*/
-	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | 0x1000);
-	setbits_be32(&gur->pmuxcr,
-		     in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_DATA);		/*  mmc[4:7] pins for MMC 8-bit Mode.*/
-
+	/* Set pmuxcr */				
+	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_DATA);		 /* MPC85xx_PMUXCR_SD_DATA -0x1000*/
+		     								/*  mmc[4:7] pins for MMC 8-bit Mode.*/
+	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_CD);
+	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_WP);
+	
+	/* TODO: clk source investigation for etsec1*/
+	
+	/* TBV: All other bits are assumed to be in default reset state*/
+	
 	/* Read back the register to synchronize the write. */
 	in_be32(&gur->pmuxcr);
+
+
 
 #ifdef CONFIG_SPL_SPI_BOOT
 	clrbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SD_DATA);
 #endif
 
 
-	/* initialize selected port with appropriate baud rate */
+
+	/* initialize selected Serial port(com1) with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;	/* mask all but last 26-31 bit */
 	plat_ratio >>= 1;							/*last bit(31) removal to get plat_ratio. */
 	bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
@@ -64,6 +72,8 @@ void board_init_f(ulong bootflag)
 
 	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
 		     bus_clk / 16 / CONFIG_BAUDRATE);
+
+
 #ifdef CONFIG_SPL_MMC_BOOT
 	puts("\nSD boot...\n");
 #elif defined(CONFIG_SPL_SPI_BOOT)
@@ -76,7 +86,7 @@ void board_init_f(ulong bootflag)
 	 */
 	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);	
 
-	/* relocate spl code to f8f8_1000 from f8f8f_0000, new stack ptr and Global data ptr also declared */
+	/* relocate spl code to f8f8_1000 from f8f8_f000, new stack ptr and Global data ptr also declared */
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
@@ -119,7 +129,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 #else
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
-	puts("\nSetting dram...\n");
+	puts("Setting dram...\n");
 	gd->ram_size = initdram(0);
 #ifdef CONFIG_SPL_NAND_BOOT
 	puts("Tertiary program loader running in sram...");
