@@ -45,9 +45,9 @@ void board_init_f(ulong bootflag)
 
 	/* Set pmuxcr */				
 	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_DATA);		 /* MPC85xx_PMUXCR_SD_DATA -0x1000*/
-		     								/*  mmc[4:7] pins for MMC 8-bit Mode.*/
-	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_CD);
-	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_WP);
+		     										/*  mmc[4:7] pins for MMC 8-bit Mode.*/
+	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SDHC_CD);
+	setbits_be32(&gur->pmuxcr, in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SDHC_WP);
 	
 	/* TODO: clk source investigation for etsec1*/
 	
@@ -92,8 +92,8 @@ void board_init_f(ulong bootflag)
 void board_init_r(gd_t *gd, ulong dest_addr)
 {
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *)CONFIG_SPL_GD_ADDR;
-	bd_t *bd;
+	gd = (gd_t *)CONFIG_SPL_GD_ADDR;				/* global data*/
+	bd_t *bd;							/* board info*/
 
 	memset(gd, 0, sizeof(gd_t));
 	bd = (bd_t *)(CONFIG_SPL_GD_ADDR + sizeof(gd_t));
