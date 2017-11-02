@@ -116,7 +116,9 @@ void board_gpio_init(void)
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 
 	
-	/*setbits_be32(&pgpio->gpdir, 0x02010000);*/	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
+	
+setbits_be32(&pgpio->gpdir, 0x02010000);
+	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
 	
 
 	#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
@@ -127,23 +129,34 @@ void board_gpio_init(void)
 	udelay(1000);
 	udelay(1000);
 	udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
+	udelay(1000);
+	udelay(1000);
+	udelay(1000);
+	udelay(1000);
+	udelay(1000);
+	udelay(1000);
+	udelay(1000);
 
-udelay(10*1000);
+	udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
 	/*clrbits_be32(&pgpio->gpdir, 0x00200000);*/
 
+
+
+
+     
+	/* reset sgmii/rgmii phy & PCIe */
+	clrbits_be32(&pgpio->gpdat, 0x02110000);
+	udelay(10*1000);
+	
+	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII reset, WDI && PCI reset line */
+
+	/*udelay(10*1000);
+	clrbits_be32(&pgpio->gpdat, 0x02110000);*/	
+
+
 #endif
-
-
-
 
        
 	/*
