@@ -124,18 +124,8 @@ void board_gpio_init(void)
 
 	setbits_be32(&pgpio->gpodr, 0x00200000);
 	clrbits_be32(&pgpio->gpdat, 0x00200000);
-	udelay(1000);
-	udelay(1000);
-	udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-udelay(1000);
-
-udelay(10*1000);
+	
+	udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
 	/*clrbits_be32(&pgpio->gpdir, 0x00200000);*/
