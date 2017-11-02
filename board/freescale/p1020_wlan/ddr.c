@@ -177,8 +177,9 @@ int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
 		unsigned int controller_number,
 		unsigned int dimm_number)
 {
-	const char dimm_model[] = "Fixed DDR on board";	puts("\n DDR: using modified new Timings...1024_HCH9-FULL01\n");
-
+	const char dimm_model[] = "Fixed DDR on board";	
+	
+	puts("DDR: using modified new Timings...1024tbd_HCH9-FULL01\n");
 	if ((controller_number == 0) && (dimm_number == 0)) {
 		memcpy(pdimm, &ddr_raw_timing, sizeof(dimm_params_t));
 		memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
@@ -195,7 +196,7 @@ phys_size_t fixed_sdram(void)
 {
 	sys_info_t sysinfo;
 	char buf[32];
-	size_t ddr_size;puts("\nSetting fixed_sdram...\n");
+	size_t ddr_size;
 	fsl_ddr_cfg_regs_t ddr_cfg_regs = {
 		.cs[0].bnds = CONFIG_SYS_DDR_CS0_BNDS,
 		.cs[0].config = CONFIG_SYS_DDR_CS0_CONFIG,
@@ -227,7 +228,7 @@ phys_size_t fixed_sdram(void)
 		.ddr_sdram_rcw_1 = CONFIG_SYS_DDR_RCW_1,
 		.ddr_sdram_rcw_2 = CONFIG_SYS_DDR_RCW_2
 	};
-	printf("Configuring DDR: using timing01\n");
+	
 	get_sys_info(&sysinfo);
 	printf("Configuring DDR for %s MT/s data rate\n",
 			strmhz(buf, sysinfo.freq_ddrbus));
@@ -262,7 +263,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->wrlvl_start = 0x8;
 	popts->trwt_override = 1;
 	popts->trwt = 0;
-
+	puts("DDR:Setting board_options \n");
 	if (pdimm->primary_sdram_width == 64)
 		popts->data_bus_width = 0;
 	else if (pdimm->primary_sdram_width == 32)
