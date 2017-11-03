@@ -54,7 +54,7 @@ typedef struct cpld_data_cont{
 #define CPLD_RST_BSW	(0x00)
 #define CPLD_RST_BWD	(0x00)
 #define CPLD_BYPASS_EN	(0x03)
-#define CPLD_STATUS_LED	(0x00)
+#define CPLD_STATUS_LED	(0x01)
 #define CPLD_VCORE_VOLT	(0x00)
 #define CPLD_SYS_RST	(0x00)
 
@@ -113,14 +113,14 @@ void board_cpld_init(void)
 void board_gpio_init(void)
 {
 
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 
 	
 	/*setbits_be32(&pgpio->gpdir, 0x02010000);*/	/* changing DDR_RST direction in SPL results into hanging : TODO: investigate??*/
 	
 
 	#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SPL)
-	setbits_be32(&pgpio->gpdir, 0x02310000);
+	setbits_be32(&pgpio->gpdir, 0x02210000);
 
 	setbits_be32(&pgpio->gpodr, 0x00200000);
 	clrbits_be32(&pgpio->gpdat, 0x00200000);
@@ -128,12 +128,18 @@ void board_gpio_init(void)
 	udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(1000);
-	/*clrbits_be32(&pgpio->gpdir, 0x00200000);*/
+	
+	clrbits_be32(&pgpio->gpdat, 0x00231000);
+	udelay(10*1000);
+	setbits_be32(&pgpio->gpdat, 0x02310000);
+	#endif
 
-#endif
 
+	/*setbits_be32(&pgpio->gpdir, 0x02010000);*/
 
-
+	clrbits_be32(&pgpio->gpdat, 0x02010000);
+	udelay(1000);
+	setbits_be32(&pgpio->gpdat, 0x02010000);
 
        
 	/*

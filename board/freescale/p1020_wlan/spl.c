@@ -31,15 +31,15 @@ void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio, bus_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-
-	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	setbits_be32(&pgpio->gpdir, 0x00200000);
+/*
+	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	setbits_be32(&pgpio->gpdir, 0x02210000);
 
 	setbits_be32(&pgpio->gpodr, 0x00200000);
 	clrbits_be32(&pgpio->gpdat, 0x00200000);
 	udelay(10*1000);
 	setbits_be32(&pgpio->gpdat, 0x00200000);
-
+*/
 
 	console_init_f();
 
