@@ -74,7 +74,7 @@ void board_cpld_init(void)
 	cpld_data->rst_bps_sw 			= CPLD_RST_BSW;
 	cpld_data->rst_bps_wd 			= CPLD_RST_BWD;
 	cpld_data->bypass_enable 		= CPLD_BYPASS_EN;
-	cpld_data->status_led  			= CPLD_STATUS_LED;
+	/*cpld_data->status_led  			= CPLD_STATUS_LED;*/
 	cpld_data->vcore_voltage_mgn 		= CPLD_VCORE_VOLT;
 	cpld_data->system_rst 			= CPLD_SYS_RST;
 
@@ -101,6 +101,7 @@ void board_gpio_init(void)
 {
 
 	ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
+	volatile cpld_data_t *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
 	/*
 	  * GPIO06 RGMII PHY Reset
@@ -134,10 +135,10 @@ void board_gpio_init(void)
 	setbits_be32(&pgpio->gpdat, 0x02110000);    /*  RGMII PHy reset, WDI && PCI reset line */
 	#endif
 
-
-	/*
-	udelay(1000);
-	clrbits_be32(&pgpio->gpdat, 0x02000000);*/	
+	/*setbits_be32(&pgpio->gpdat, 0x04000000);*/ /*led */
+	
+	cpld_data->status_led  	=0x00;
+		
 }
 
 
